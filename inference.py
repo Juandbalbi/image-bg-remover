@@ -40,8 +40,6 @@ def inference_images(modnet, im_name):
         [transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
     )
 
-    # print("Processing image: {0}".format(im_name))
-
     # read image
     im = Image.open(os.path.join(input_path, im_name))
 
