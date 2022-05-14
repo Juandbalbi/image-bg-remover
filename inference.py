@@ -1,4 +1,4 @@
-import os
+from io import BytesIO
 import numpy as np
 from PIL import Image
 
@@ -31,7 +31,7 @@ def load_model():
     return modnet
 
 
-def inference_images(modnet, im_name):
+def inference_images(modnet, im):
     # define hyper-parameters
     ref_size = 512
 
@@ -39,9 +39,6 @@ def inference_images(modnet, im_name):
     im_transform = transforms.Compose(
         [transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
     )
-
-    # read image
-    im = Image.open(os.path.join(input_path, im_name))
 
     # unify image channels to 3
     im = np.asarray(im)
@@ -107,23 +104,12 @@ def extract_img_from_bg(image, matte):
     return result_img
 
 
-def main():
-    image_names = os.listdir(input_path)
+def inference_image(image_bytes):
     model = load_model()
-    for image_name in image_names:
-        # Load original image
-        print(f"Processing {image_name}...")
-        try:
-            image = Image.open(os.path.join(input_path, image_name))
-            # Inference image
-            matte_img = inference_images(model, image_name)
-            # Combine image
-            result_img = extract_img_from_bg(image, matte_img)
-            # Save img
-            result_img.save(f"{output_path}/{image_name}")
-        except:
-            print(f"Coundn't process image {image_name}")
+    image = Image.open(BytesIO(image_bytes))
+    matte_img = inference_images(model, image)
+    # Combine image
+    result_img = extract_img_from_bg(image, matte_img)
+    result_img.show()
 
-
-if __name__ == "__main__":
-    main()
+    return result_img
